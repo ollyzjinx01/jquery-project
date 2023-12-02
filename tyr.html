@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="js pro/jquery-3.6.0.js"></script>
+    <style>
+      .slider {
+        width: 1020px;
+        overflow: hidden;
+        height: 250px;
+        margin-left: 40px;
+        border-style: solid;
+        border-color: white;
+        background-color: white;
+        list-style-type: none;
+      }
+      .slider .slides {
+        display: flex;
+        margin: 0px;
+        padding: 0px;
+        height: 200px;
+        width: 6000px;
+        list-style-type: none;
+      }
+      .slider .slide {
+        float: left;
+        width: 620px;
+        height: 200px;
+        padding: 20px;
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="slider">
+        <ul class="slides">
+          <li>
+            <img
+              src="images/2023-07-26.png"
+              class="slide"
+              width="620px"
+              height="200px"
+            />
+          </li>
+          <li>
+            <img
+              src="images/2023-07-29.png"
+              class="slide"
+              width="620px"
+              height="200px"
+            />
+          </li>
+          <li>
+            <img
+              src="images/2023-09-03 (1).png"
+              class="slide"
+              width="620px"
+              height="200px"
+            />
+          </li>
+          <li>
+            <img
+              src="images/2023-09-03 (3).png"
+              class="slide"
+              width="620px"
+              height="200px"
+            />
+          </li>
+          <li>
+            <img
+              src="images/2023-09-03 (4).png"
+              class="slide"
+              width="620px"
+              height="200px"
+            />
+          </li>
+        </ul>
+      </div>
+    </div>
+    <h1>HOW TO STORE IN Index db</h1>
+    <div class="col-10">
+      <form id="frm1" role="form" onsubmit="addOrder(event)">
+        <div>
+          <input
+            class="v1"
+            id="full_name"
+            type="text"
+            value=""
+            placeholder="Enter Full Name"
+            name="fnm"
+            required
+          /><br /><br />
+          <input
+            type="tel"
+            class="v1"
+            id="phone_number"
+            value=""
+            placeholder="Enter Phone Number"
+            name="pnm"
+            required
+          />
+          <br />
+          <br />
+          <label>Please enter f or m in lower case</label><br />
+          <input
+            type="text"
+            class="v1"
+            id="gender_id"
+            value=""
+            placeholder="gender"
+            name="gn"
+            required
+          />
+          <br />
+          <br />
+          <input
+            type="email"
+            class="v1"
+            id="email_id"
+            value=""
+            placeholder="Enter Your Email"
+            name="eml"
+            required
+          />
+          <br />
+          <br />
+          <input
+            type="date"
+            id="date_birth"
+            value=""
+            placeholder="Date of birth"
+            name="dbh"
+            required
+          />
+          <br /><br />
+          <label>Enter your Bank</label>
+          <select name="" id="bank_name">
+            <option>CHOOSE YOUR BANK</option>
+            <option>GTB</option>
+            <option>STERLING</option>
+            <option>PROVIDUS</option>
+            <option>WEMA</option>
+            <option>ACCESS BANK</option>
+          </select>
+          <br /><br />
+          <select name="serv" id="services_id" required>
+            <option>WHAT DO YOU NEED ?</option>
+            <option>Frontend developer</option>
+            <option>Digital Marketer</option>
+            <option>Logistics Manager</option>
+          </select>
+          <br />
+          <br />
+          <button type="submit" class="btn btn-success">Send</button>
+          <br /><br /><br />
+        </div>
+      </form>
+    </div>
+    <script type="text/javascript">
+      var db;
+      $(document).ready(function () {
+        currentSlide = 1;
+        $(".container").mouseover(function () {
+          $(".slider .slides").animate(
+            { "margin-left": "-=520px" },
+            5000,
+            function () {
+              currentSlide++;
+              if (currentSlide === $(".slider .slides .slide").length) {
+                currentSlide = 1;
+                $(".slider .slides").css("margin-left", 0);
+              }
+            }
+          );
+        });
+      });
+      $(document).ready(function () {
+        var request = indexedDB.open("wahala7", 4);
+
+        request.onupgradeneeded = function (e) {
+          var db = e.target.result;
+
+          if (!db.objectStoreNames.contains("wahala7")) {
+            var obStor = db.createObjectStore("wahala7", {
+              keyPath: "id",
+              autoIncrement: true,
+            });
+          }
+        };
+
+        request.onsuccess = function (e) {
+          db = e.target.result;
+          console.log("database opened successfully");
+        };
+
+        request.onerror = function (e) {
+          console.log("database not opened");
+        };
+      });
+
+      function addOrder() {
+        event.preventDefault();
+        var fullName = $("#full_name").val();
+        var phoneNumber = $("#phone_number").val();
+        var gender = $("#gender_id").val();
+        var email = $("#email_id").val();
+        var dob = $("#date_birth").val();
+        var bankName = $("#bank_name").val();
+        var services = $("#services_id").val();
+
+        var transactions = db.transaction(["wahala7"], "readwrite");
+        var store = transactions.objectStore("wahala7");
+        var orders = {
+          fullName: fullName,
+          phoneNumber: phoneNumber,
+          gender: gender,
+          email: email,
+          dob: dob,
+          bankName: bankName,
+          services: services,
+        };
+
+        var request = store.add(orders);
+        request.onsuccess = function (e) {
+          alert("order successful");
+        };
+        request.onerror = function (e) {
+          console.log("error:", e.target.error.name);
+        };
+      }
+    </script>
+  </body>
+</html>
